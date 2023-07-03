@@ -1,10 +1,37 @@
 import express, { Request, Response } from 'express';
+import { Pool } from 'pg';
 
 const app = express();
+// Configuracao da conexao com o banco de dados
+const pool = new Pool({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'livraria',
+    password: 'MeAcs#7oU$pNs3',
+    port: 5432,
+})
+
+//Funcao generica assincrona para executar consultas
+async function executeQuery(query: string, params: any[]) {
+    const client = await pool.connect();
+    try {
+        const result = await client.query(query, params)
+        return result.rows
+    } finally {
+        client.release()
+    }
+}
+
+async function getBooks() {
+    const query = 'select * from livros'
+    const booksBD = await executeQuery(query, [])
+    return booksBD
+}
 
 // Buscar dados 
-app.get('/api/livros', (req: Request, res: Response) => {
-    res.send('Busca todos os livros');
+app.get('/api/livros', async (req: Request, res: Response) => {
+    const books = await getBooks();
+    res.json(books);
 });
 
 // Buscar dados
