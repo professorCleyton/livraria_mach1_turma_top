@@ -1,32 +1,33 @@
 import express, { Request, Response } from 'express';
-import { Pool } from 'pg';
+import { executeQuery } from './pool';
 
 const app = express();
-// Configuracao da conexao com o banco de dados
-const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'livraria',
-    password: 'MeAcs#7oU$pNs3',
-    port: 5432,
-})
 
-//Funcao generica assincrona para executar consultas
-async function executeQuery(query: string, params: any[]) {
-    const client = await pool.connect();
-    try {
-        const result = await client.query(query, params)
-        return result.rows
-    } finally {
-        client.release()
-    }
-}
-
+// Funcao para buscar todos os livros
 async function getBooks() {
-    const query = 'select * from livros'
-    const booksBD = await executeQuery(query, [])
-    return booksBD
+    const query = 'select * from livros';
+    const booksBD = await executeQuery(query, []);
+    return booksBD;
 }
+
+async function getBookById(id: number) {
+    const query = 'select id, nome as name, preco as price, estoque as stock from livros where id=$1';
+    const params = [id];
+    const book = await executeQuery(query, params);
+    return book;
+}
+
+// Funcao para buscar todos os atendentes
+async function getUsers() {
+    const query = 'Select * from atendentes';
+    const usersDB = await executeQuery(query, []);
+    return usersDB;
+}
+
+app.get('/api/users', async (req: Request, res: Response) => {
+    const users = await getUsers();
+    res.json(users)
+})
 
 // Buscar dados 
 app.get('/api/livros', async (req: Request, res: Response) => {
@@ -35,9 +36,10 @@ app.get('/api/livros', async (req: Request, res: Response) => {
 });
 
 // Buscar dados
-app.get('/api/livros/:id', (req: Request, res: Response) => {
-    const bookId = req.params.id;
-    res.send(`Get user with ID ${bookId}`);
+app.get('/api/livros/:id', async (req: Request, res: Response) => {
+    const bookId = Number(req.params.id);
+    const book = await getBookById(bookId);
+    res.json(book);
 });
 
 // Para criar registros

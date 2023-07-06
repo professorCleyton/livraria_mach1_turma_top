@@ -1,0 +1,6 @@
+DB_HOST=hostDatabase
+DB_USER=userDatabase
+DB_PASSWORD=passwordDatabase
+DB_USER=user
+DB_DATABASE=db
+DB_PORT=port
