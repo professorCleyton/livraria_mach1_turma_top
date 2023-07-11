@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, query } from 'express';
 import { executeQuery } from './pool';
 
 const app = express();
@@ -46,14 +46,91 @@ async function insertBook(name: string, barcode: number, publisherId: number,
     executeQuery(query, params);
 }
 
-// Atualziando um livro
-async function updateBook(reqBody: book, id:number) {
-    const query = `UPDATE livros
-	SET nome=$2
-	WHERE id=$1;`
-    const params = [id,reqBody.name]
-    executeQuery(query, params);
+function isObjectEmpty(obj: object): boolean {
+    return Object.keys(obj).length === 0;
 }
+
+// Atualziando um livro - 5 cabeças
+// async function updateBook(reqBody: any, id: number) {
+//     if (isObjectEmpty(reqBody)) {
+//         console.log('vazio')
+//         return false;
+//     }
+//     const { name, barcode, publisherId, price, stock, languageId } = reqBody;
+//     const params = [];
+//     params.push(id);
+//     let query = 'UPDATE livros SET '
+//     if (name) {
+//         query += 'nome=$2, '
+//         params.push(name)
+//     }
+//     if (barcode) {
+//         query += 'codigo_barras=$3, '
+//         params.push(barcode)
+//     }
+//     if (publisherId){
+//          query += 'id_editora=$4, '
+//         params.push(publisherId)
+//     }
+//     if (price) {
+//         query += 'preco=$5, '
+//         params.push(price)
+//     }
+//     if (stock) { 
+//         query += 'estoque=$6, '
+//         params.push(stock)
+//     }
+//     if (languageId) {
+//         query += 'id_idioma=$7, '
+//         params.push(languageId)
+//     }
+//     query = query.slice(0, -2)
+//     query += ' Where id=$1'
+
+//     console.log(query)
+//     executeQuery(query, params);
+// }
+
+// Melhora de atualizando o livro segundo GPT
+async function updateBook(reqBody: any, id: number) {
+    if (isObjectEmpty(reqBody)) {
+      console.log('vazio');
+      return false;
+    }
+    const { name, barcode, publisherId, price, stock, languageId } = reqBody;
+    const params = [id];
+    const updateFields = [];
+  
+    if (name) {
+      updateFields.push('nome=$2');
+      params.push(name);
+    }
+    if (barcode) {
+      updateFields.push('codigo_barras=$3');
+      params.push(barcode);
+    }
+    if (publisherId) {
+      updateFields.push('id_editora=$4');
+      params.push(publisherId);
+    }
+    if (price) {
+      updateFields.push('preco=$5');
+      params.push(price);
+    }
+    if (stock) {
+      updateFields.push('estoque=$6');
+      params.push(stock);
+    }
+    if (languageId) {
+      updateFields.push('id_idioma=$7');
+      params.push(languageId);
+    }
+  
+    const updateQuery = 'UPDATE livros SET ' + updateFields.join(', ') + ' WHERE id=$1';
+    console.log(updateQuery);
+    executeQuery(updateQuery, params);
+  }
+  
 
 app.get('/api/users', async (req: Request, res: Response) => {
     const users = await getUsers();
