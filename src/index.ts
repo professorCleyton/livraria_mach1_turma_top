@@ -1,5 +1,6 @@
 import express, { Request, Response, query } from 'express';
 import { executeQuery } from './pool';
+import authMiddleware from './auth';
 
 const app = express();
 // Configurando o recebimento de body POST com JSON
@@ -14,6 +15,7 @@ type book = {
     stock?: number
     languageId?: number
 }
+
 
 // Funcao para buscar todos os livros
 async function getBooks() {
@@ -155,6 +157,12 @@ app.post('/api/livros/cadastro', (req: Request, res: Response) => {
     insertBook(req.body.name, req.body.barcode, req.body.publisherId,
         req.body.price, req.body.stock, req.body.languageId)
     res.json({ sucess: "Livro criado com sucesso!" });
+});
+
+// Fazendo autenticacao 
+app.post('/api/users/autentication',authMiddleware, (req: Request, res: Response) => {
+  console.log(req.body)
+  return res.json({ message: 'Protected route' });
 });
 
 // Atualizar um registro

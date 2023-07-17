@@ -16,14 +16,18 @@
   "author": "Cleyton e turma",
   "license": "ISC",
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.2",
+    "base-64": "^1.0.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.1",
     "pg": "^8.11.1",
     "pg-pool": "^3.6.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.1.6"
   },
   "devDependencies": {
+    "@types/base-64": "^1.0.0",
     "@types/express": "^4.17.17",
     "@types/pg": "^8.10.2"
   }
