@@ -1,6 +1,7 @@
 import express, { Request, Response, query } from 'express';
 import { executeQuery } from './pool';
 import authMiddleware from './auth';
+import jwt from 'jsonwebtoken';
 
 const app = express();
 // Configurando o recebimento de body POST com JSON
@@ -52,7 +53,6 @@ function isObjectEmpty(obj: object): boolean {
     return Object.keys(obj).length === 0;
 }
 
-// Atualziando um livro - 5 cabeças
 // async function updateBook(reqBody: any, id: number) {
 //     if (isObjectEmpty(reqBody)) {
 //         console.log('vazio')
@@ -134,7 +134,7 @@ async function updateBook(reqBody: any, id: number) {
   }
   
 
-app.get('/api/users', async (req: Request, res: Response) => {
+app.get('/api/users', authMiddleware,async (req: Request, res: Response) => {
     const users = await getUsers();
     res.json(users)
 })
@@ -160,9 +160,16 @@ app.post('/api/livros/cadastro', (req: Request, res: Response) => {
 });
 
 // Fazendo autenticacao 
-app.post('/api/users/autentication',authMiddleware, (req: Request, res: Response) => {
-  console.log(req.body)
-  return res.json({ message: 'Protected route' });
+// Fazendo autenticacao 
+app.post('/api/users/autentication', (req: Request, res: Response) => {
+  const { username, password } = req.body;
+
+  if (username === 'teste' && password === 'teste') {
+    const token = jwt.sign({ username }, 'your-secret-key-here', { expiresIn: '1h' }); // Assinando o token com o secretKey
+    res.json({ token });
+  } else {
+    res.status(401).json({ message: 'Credenciales inválidas' });
+  }
 });
 
 // Atualizar um registro

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import base64 from 'base-64';
+
 
 interface TokenPayload {
   userId: string;
@@ -24,7 +24,6 @@ export default function authMiddleware(
   }
 
   const [scheme, token] = parts;
-  console.log( base64.decode(token))
   if (!/^Bearer$/i.test(scheme)) {
     return res.status(401).json({ message: 'Token malformatted' });
   }
